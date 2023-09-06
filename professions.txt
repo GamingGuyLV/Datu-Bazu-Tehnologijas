@@ -1,0 +1,9 @@
+Electrician
+Valet
+IT Support
+Cashier
+Bus Driver
+Programmer
+Cheff
+Waiter
+Firefighter
