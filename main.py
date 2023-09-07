@@ -140,6 +140,10 @@ def random_user_gen(amount: int):
 
 # Show random user
 def random_user():
+    """
+    Returns a random user from the database.
+    """
+
     cur.execute('''SELECT COUNT(id) FROM people''')
     users = int(cur.fetchone()[0])
     print(f"User count: {users}")
@@ -152,10 +156,120 @@ def random_user():
 
 
 # Show all professions
+def all_professions():
+    """
+    Returns a list of all professions in database.
+    """
+
+    cur.execute('''SELECT name FROM professions''')
+    professions = cur.fetchall()
+    return professions
+
 
 # Show all religions
+def all_religions():
+    """
+    Returns a list of all religions in database.
+    """
+
+    cur.execute('''SELECT name FROM religions''')
+    religions = cur.fetchall()
+    return religions
+
 
 # Show all users with a certain criteria
+def get_users(criteria: str, value: str | int | float):
+    """
+    Returns a list of all users with the cerain criteria. ONLY ONE CRITERIA
+    """
+
+    match criteria:
+        case "id":
+            try:
+                criteria = "people.id"
+                value = int(value)
+            except TypeError as e:
+                print(e)
+                return
+        
+        case "name":
+            try:
+                criteria = "people.name"
+                value = f"'{str(value)}'"
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "age":
+            try:
+                criteria = "people.age"
+                value = int(value)
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "height":
+            try:
+                criteria = "people.height"
+                value = float(value)
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "weight":
+            try:
+                criteria = "people.weight"
+                value = int(value)
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "gender":
+            try:
+                criteria = "genders.name"
+                value = f"'{str(value)}'"
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "religion":
+            try:
+                criteria = "religions.name"
+                value = f"'{str(value)}'"
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "profession":
+            try:
+                criteria = "professions.name"
+                value = f"'{str(value)}'"
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "annual_income":
+            try:
+                criteria = "people.annual_income"
+                value = float(value)
+            except TypeError as e:
+                print(e)
+                return
+            
+        case "net_worth":
+            try:
+                criteria = "people.net_worth"
+                value = float(value)
+            except TypeError as e:
+                print(e)
+                return
+
+    print(f"Criteria: {criteria} Value: {value}")
+
+    cur.execute(f"""SELECT people.id, people.name, people.age, people.height, people.weight, genders.name, religions.name, professions.name, people.annual_income, people.net_worth FROM people LEFT JOIN genders ON people.gender = genders.id LEFT JOIN religions ON people.religion = religions.id LEFT JOIN professions ON people.profession = professions.id WHERE {criteria}={value} ORDER BY RANDOM()""")
+    users = cur.fetchall()
+    return users
+
 
 # Drop all tables to start from scratch
 def drop_tables():
@@ -195,16 +309,31 @@ while True:
             input("Press enter to continue.")
 
         case 3:
-            print("Case 3")
-            continue
+            professions = all_professions()
+
+            for profession in professions:
+                print(profession[0])
+
+            input("Press enter to continue.")
 
         case 4:
-            print("Case 4")
-            continue
+            religions = all_religions()
+            
+            for religion in religions:
+                print(religion[0])
+
+            input("Press enter to continue.")
 
         case 5:
-            print("Case 5")
-            continue
+            criteria = input("Input criteria:\n")
+            value = input("Input the value:\n")
+
+            users = get_users(criteria, value)
+
+            for user in users:
+                print(user)
+
+            input("Press enter to continue.")
 
         case 8:
             con.commit()
