@@ -178,96 +178,82 @@ def all_religions():
 
 
 # Show all users with a certain criteria
-def get_users(criteria: str, value: str | int | float):
+def get_users(criteria: str):
     """
     Returns a list of all users with the cerain criteria. ONLY ONE CRITERIA
     """
 
-    match criteria:
-        case "id":
-            try:
-                criteria = "people.id"
-                value = int(value)
-            except TypeError as e:
-                print(e)
-                return
+    criterias = False
+
+    if "," in criteria:
+        criterias = criteria.split(",")
+
+    
+    finalcriteria = ""
+
+    if criterias:
+        for criteria in criterias:
+            criteria = criteria.strip()
+            if "id" in criteria:
+                criteria = "people." + criteria
+            elif "name" in criteria:
+                criteria = "people." + criteria
+            elif "age" in criteria:
+                criteria = "people." + criteria
+            elif "height" in criteria:
+                criteria = "people." + criteria
+            elif "weight" in criteria:
+                criteria = "people." + criteria
+            elif "gender" in criteria:
+                criteria = "genders.name" + criteria[6:]
+            elif "religion" in criteria:
+                criteria = "religions.name" + criteria[8:]
+            elif "profession" in criteria:
+                criteria = "professions.name" + criteria[10:]
+            elif "annual_income" in criteria:
+                criteria = "people." + criteria
+            elif "net_worth" in criteria:
+                criteria = "people." + criteria
+            
+            finalcriteria = f"{finalcriteria} AND {criteria}"
+        finalcriteria = finalcriteria[4:]
+    
+    else:
+        criteria = criteria.strip()
+        if "id" in criteria:
+            criteria = "people." + criteria
+        elif "name" in criteria:
+            criteria = "people." + criteria
+        elif "age" in criteria:
+            criteria = "people." + criteria
+        elif "height" in criteria:
+            criteria = "people." + criteria
+        elif "weight" in criteria:
+            criteria = "people." + criteria
+        elif "gender" in criteria:
+            criteria = "genders.name" + criteria[6:]
+        elif "religion" in criteria:
+            criteria = "religions.name" + criteria[8:]
+        elif "profession" in criteria:
+            criteria = "professions.name" + criteria[11:]
+        elif "annual_income" in criteria:
+            criteria = "people." + criteria
+        elif "net_worth" in criteria:
+            criteria = "people." + criteria
         
-        case "name":
-            try:
-                criteria = "people.name"
-                value = f"'{str(value)}'"
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "age":
-            try:
-                criteria = "people.age"
-                value = int(value)
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "height":
-            try:
-                criteria = "people.height"
-                value = float(value)
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "weight":
-            try:
-                criteria = "people.weight"
-                value = int(value)
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "gender":
-            try:
-                criteria = "genders.name"
-                value = f"'{str(value)}'"
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "religion":
-            try:
-                criteria = "religions.name"
-                value = f"'{str(value)}'"
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "profession":
-            try:
-                criteria = "professions.name"
-                value = f"'{str(value)}'"
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "annual_income":
-            try:
-                criteria = "people.annual_income"
-                value = float(value)
-            except TypeError as e:
-                print(e)
-                return
-            
-        case "net_worth":
-            try:
-                criteria = "people.net_worth"
-                value = float(value)
-            except TypeError as e:
-                print(e)
-                return
+        finalcriteria = criteria
+                
 
-    print(f"Criteria: {criteria} Value: {value}")
+    #print(f"Criteria: {finalcriteria}")
 
-    cur.execute(f"""SELECT people.id, people.name, people.age, people.height, people.weight, genders.name, religions.name, professions.name, people.annual_income, people.net_worth FROM people LEFT JOIN genders ON people.gender = genders.id LEFT JOIN religions ON people.religion = religions.id LEFT JOIN professions ON people.profession = professions.id WHERE {criteria}={value} ORDER BY RANDOM()""")
-    users = cur.fetchall()
+    try:
+        cur.execute(f"""SELECT people.id, people.name, people.age, people.height, people.weight, genders.name, religions.name, professions.name, people.annual_income, people.net_worth FROM people LEFT JOIN genders ON people.gender = genders.id LEFT JOIN religions ON people.religion = religions.id LEFT JOIN professions ON people.profession = professions.id WHERE {finalcriteria} ORDER BY RANDOM()""")
+        users = cur.fetchall()
+    except sqlite3.OperationalError as e:
+        print(f"\n{e}")
+        print("\nError ^^^ Returning nothing")
+        users = []
+    
     return users
 
 
@@ -325,10 +311,10 @@ while True:
             input("Press enter to continue.")
 
         case 5:
-            criteria = input("Input criteria:\n")
-            value = input("Input the value:\n")
+            print("\nExample: gender='male' OR id=1132 . If you want multiple, then add , between them. Word values need to be in quotes, numbers without.")
+            criteria = input()
 
-            users = get_users(criteria, value)
+            users = get_users(criteria)
 
             for user in users:
                 print(user)
